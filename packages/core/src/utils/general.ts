@@ -1,5 +1,6 @@
-import type { GraphNode, SnapGrid, XYPosition } from '../types'
 import type { UseDragEvent } from '../composables'
+import type { Dimensions, GraphNode, SnapGrid, XYPosition } from '../types'
+import { clampPosition } from './graph'
 
 export function isMouseEvent(event: MouseEvent | TouchEvent): event is MouseEvent {
   return 'clientX' in event
@@ -35,4 +36,18 @@ export function snapPosition(position: XYPosition, snapGrid: SnapGrid = [1, 1]):
     x: snapGrid[0] * Math.round(position.x / snapGrid[0]),
     y: snapGrid[1] * Math.round(position.y / snapGrid[1]),
   }
+}
+
+export function clampPositionToParent(childPosition: XYPosition, childDimensions: Dimensions, parent: GraphNode) {
+  const { width: parentWidth, height: parentHeight } = getNodeDimensions(parent)
+  const { x: parentX, y: parentY } = parent.computedPosition
+
+  return clampPosition(
+    childPosition,
+    [
+      [parentX, parentY],
+      [parentX + parentWidth, parentY + parentHeight],
+    ],
+    childDimensions,
+  )
 }

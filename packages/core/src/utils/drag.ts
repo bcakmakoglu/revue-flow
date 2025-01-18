@@ -9,7 +9,7 @@ import type {
   State,
   XYPosition,
 } from '../types'
-import { ErrorCode, VueFlowError, clampPosition, isParentSelected } from '.'
+import { ErrorCode, VueFlowError, clampPosition, clampPositionToParent, isParentSelected } from '.'
 
 export function hasSelector(target: Element, selector: string, node: Element): boolean {
   let current = target
@@ -192,15 +192,23 @@ export function calcNextPosition(
   nodeExtent?: State['nodeExtent'],
   parentNode?: GraphNode,
 ) {
+  const currentExtent = node.extent || nodeExtent
   const extent = clampNodeExtent(node.dimensions, getExtent(node, triggerError, nodeExtent, parentNode))
 
   const clampedPos = clampPosition(nextPosition, extent)
+
+  let computedPos = clampedPos
+
+  if (parentNode && (currentExtent === 'parent' || (!Array.isArray(currentExtent) && currentExtent?.range === 'parent'))) {
+    console.log('clamp to parent')
+    computedPos = clampPositionToParent(clampedPos, node.dimensions, parentNode)
+  }
 
   return {
     position: {
       x: clampedPos.x - (parentNode?.computedPosition.x || 0),
       y: clampedPos.y - (parentNode?.computedPosition.y || 0),
     },
-    computedPosition: clampedPos,
+    computedPosition: computedPos,
   }
 }

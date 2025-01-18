@@ -226,6 +226,8 @@ const NodeWrapper = defineComponent({
         } else {
           node.computedPosition = xyzPos
         }
+
+        clampPosition()
       },
       { flush: 'post', immediate: true },
     )
