@@ -36,9 +36,17 @@
   "jsdelivr": "./dist/vue-flow-core.iife.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/vue-flow-core.mjs",
-      "require": "./dist/vue-flow-core.js"
+      "node": {
+        "types": "./dist/index.d.ts",
+        "module": "./dist/vue-flow-core.mjs",
+        "require": "./dist/vue-flow-core.js",
+        "import": "./dist/vue-flow-core.mjs"
+      },
+      "browser": {
+        "import": "./dist/vue-flow-core.mjs",
+        "require": "./dist/vue-flow-core.iife.js"
+      },
+      "default": "./dist/vue-flow-core.mjs"
     },
     "./dist/style.css": "./dist/style.css",
     "./dist/theme-default.css": "./dist/theme-default.css"
