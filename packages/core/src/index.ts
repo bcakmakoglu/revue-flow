@@ -32,8 +32,6 @@ export {
   isEdge,
   isGraphNode,
   isGraphEdge,
-  addEdge,
-  updateEdge,
   getOutgoers,
   getIncomers,
   getConnectedEdges,
@@ -41,8 +39,6 @@ export {
   getRectOfNodes,
   pointToRendererPoint,
   rendererPointToPoint,
-  /** @deprecated - will be removed in the next major version, use `rendererPointToPoint` instead */
-  rendererPointToPoint as graphPosToZoomedPos,
   getNodesInside,
   getMarkerId,
   getBoundsofRects,
@@ -61,7 +57,6 @@ export { defaultEdgeTypes, defaultNodeTypes } from './utils/defaultNodesEdges'
 
 export { VueFlow as VueFlowInjection, NodeId as NodeIdInjection } from './context'
 
-export { useZoomPanHelper } from './composables/useZoomPanHelper'
 export { useVueFlow } from './composables/useVueFlow'
 export { useHandle } from './composables/useHandle'
 export { useNode } from './composables/useNode'

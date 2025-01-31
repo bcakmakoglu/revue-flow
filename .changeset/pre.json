@@ -1,0 +1,27 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@vue-flow/docs": "1.0.0",
+    "@vue-flow/examples-nuxt3": "0.0.0",
+    "@vue-flow/examples-quasar": "0.0.0",
+    "@vue-flow/examples-vite": "0.0.0",
+    "@vue-flow/background": "1.0.5",
+    "@vue-flow/controls": "1.0.4",
+    "@vue-flow/core": "1.16.5",
+    "@vue-flow/minimap": "1.0.4",
+    "@vue-flow/node-resizer": "1.3.0",
+    "@vue-flow/node-toolbar": "1.0.6",
+    "@vue-flow/pathfinding-edge": "1.0.5",
+    "vueflow": "1.0.0",
+    "@vue-flow/tests": "0.0.0",
+    "@tooling/eslint-config": "0.0.0",
+    "@tooling/tsconfig": "0.0.0",
+    "@tooling/vite-config": "0.0.0"
+  },
+  "changesets": [
+    "cyan-melons-unite.md",
+    "fluffy-pans-boil.md",
+    "hip-melons-peel.md"
+  ]
+}

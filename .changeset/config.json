@@ -6,7 +6,7 @@
       "repo": "bcakmakoglu/vue-flow"
     }
   ],
-  "fixed": [],
+  "fixed": [["@vue-flow/*"]],
   "updateInternalDependencies": "patch",
   "snapshot": {
     "useCalculatedVersion": true
