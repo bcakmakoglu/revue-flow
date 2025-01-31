@@ -20,8 +20,8 @@
     "@tooling/vite-config": "0.0.0"
   },
   "changesets": [
-    "cyan-melons-unite.md",
-    "fluffy-pans-boil.md",
-    "hip-melons-peel.md"
+    "cyan-melons-unite",
+    "hip-melons-peel",
+    "nine-fishes-lick"
   ]
 }

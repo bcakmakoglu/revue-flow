@@ -1,5 +1,15 @@
 # @vue-flow/core
 
+## 2.0.0-next.0
+
+### Major Changes
+
+- [#717](https://github.com/bcakmakoglu/vue-flow/pull/717) [`702ff95`](https://github.com/bcakmakoglu/vue-flow/commit/702ff950096dd3f563e7747c32d8627239c652ce) Thanks [@bcakmakoglu](https://github.com/bcakmakoglu)! - Remove experimental features flag
+
+- [#717](https://github.com/bcakmakoglu/vue-flow/pull/717) [`6da35f5`](https://github.com/bcakmakoglu/vue-flow/commit/6da35f5767588f836292c91ce045b6c3b54a579e) Thanks [@bcakmakoglu](https://github.com/bcakmakoglu)! - Update handle styles and avoid using fixed pixel positions to offset handle position and instead use transform to align handles
+
+- [#1549](https://github.com/bcakmakoglu/vue-flow/pull/1549) [`f6bb711`](https://github.com/bcakmakoglu/vue-flow/commit/f6bb7111bf53b174ddbef5b458d249188d8b1524) Thanks [@bcakmakoglu](https://github.com/bcakmakoglu)! - Remove deprecated exports `addEdge`, `updateEdge` & `useZoomPanHelper`
+
 ## 1.42.1
 
 ### Patch Changes

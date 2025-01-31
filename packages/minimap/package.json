@@ -1,6 +1,6 @@
 {
   "name": "@vue-flow/minimap",
-  "version": "1.5.2",
+  "version": "2.0.0-next.0",
   "private": false,
   "license": "MIT",
   "author": "Burak Cakmakoglu<78412429+bcakmakoglu@users.noreply.github.com>",
@@ -57,7 +57,7 @@
     "test": "exit 0"
   },
   "peerDependencies": {
-    "@vue-flow/core": "^1.23.0",
+    "@vue-flow/core": "^2.0.0-next.0",
     "vue": "^3.3.0"
   },
   "dependencies": {
