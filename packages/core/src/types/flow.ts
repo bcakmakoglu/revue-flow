@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'vue'
 import type { KeyFilter } from '@vueuse/core'
-import type { D3ZoomEvent } from 'd3-zoom'
+import type { Viewport } from '@xyflow/system'
 import type { VueFlowError } from '../utils'
 import type { DefaultEdgeOptions, Edge, EdgeProps, EdgeUpdatable, GraphEdge } from './edge'
 import type { CoordinateExtent, CoordinateExtentRange, GraphNode, Node, NodeProps } from './node'
@@ -13,9 +13,9 @@ import type {
   Connector,
   OnConnectStartParams,
 } from './connection'
-import type { PanOnScrollMode, ViewportTransform } from './zoom'
+import type { PanOnScrollMode } from './zoom'
 import type { EdgeTypesObject, NodeTypesObject } from './components'
-import type { CustomEvent, EdgeMouseEvent, EdgeUpdateEvent, NodeDragEvent, NodeMouseEvent } from './hooks'
+import type { CustomEvent, EdgeMouseEvent, EdgeUpdateEvent, MouseTouchEvent, NodeDragEvent, NodeMouseEvent } from './hooks'
 import type { ValidConnectionFunc } from './handle'
 import type { EdgeChange, NodeChange } from './changes'
 import type { VueFlowStore } from './store'
@@ -137,7 +137,7 @@ export interface FlowExportObject {
    */
   zoom: number
   /** exported viewport (position + zoom) */
-  viewport: ViewportTransform
+  viewport: Viewport
 }
 
 export interface FlowProps {
@@ -179,7 +179,7 @@ export interface FlowProps {
   panOnDrag?: boolean | number[]
   minZoom?: number
   maxZoom?: number
-  defaultViewport?: Partial<ViewportTransform>
+  defaultViewport?: Partial<Viewport>
   translateExtent?: CoordinateExtent
   nodeExtent?: CoordinateExtent | CoordinateExtentRange
   defaultMarkerColor?: string
@@ -264,10 +264,9 @@ export interface FlowEmits {
   ): void
   (event: 'clickConnectEnd', connectionEvent?: MouseEvent): void
 
-  (event: 'moveStart', moveEvent: { event: D3ZoomEvent<HTMLDivElement, any>; flowTransform: ViewportTransform }): void
-  (event: 'move', moveEvent: { event: D3ZoomEvent<HTMLDivElement, any>; flowTransform: ViewportTransform }): void
-  (event: 'moveEnd', moveEvent: { event: D3ZoomEvent<HTMLDivElement, any>; flowTransform: ViewportTransform }): void
-
+  (event: 'moveStart', moveEvent: { event: MouseTouchEvent | null; viewport: Viewport }): void
+  (event: 'move', moveEvent: { event: MouseTouchEvent | null; viewport: Viewport }): void
+  (event: 'moveEnd', moveEvent: { event: MouseTouchEvent | null; viewport: Viewport }): void
   (event: 'selectionDragStart', selectionEvent: NodeDragEvent): void
   (event: 'selectionDrag', selectionEvent: NodeDragEvent): void
   (event: 'selectionDragStop', selectionEvent: NodeDragEvent): void
@@ -275,9 +274,9 @@ export interface FlowEmits {
   (event: 'selectionStart', selectionEvent: MouseEvent): void
   (event: 'selectionEnd', selectionEvent: MouseEvent): void
 
-  (event: 'viewportChangeStart', viewport: ViewportTransform): void
-  (event: 'viewportChange', viewport: ViewportTransform): void
-  (event: 'viewportChangeEnd', viewport: ViewportTransform): void
+  (event: 'viewportChangeStart', viewport: Viewport): void
+  (event: 'viewportChange', viewport: Viewport): void
+  (event: 'viewportChangeEnd', viewport: Viewport): void
 
   (event: 'paneScroll', paneScrollEvent: WheelEvent | undefined): void
   (

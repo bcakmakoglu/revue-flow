@@ -1,9 +1,8 @@
-import { zoomIdentity } from 'd3-zoom'
 import type { ComputedRef } from 'vue'
 import { until } from '@vueuse/core'
+import { getDimensions, getOverlappingArea, isRectObject, panBy as panBySystem } from '@xyflow/system'
 import type {
   Actions,
-  CoordinateExtent,
   Edge,
   EdgeAddChange,
   EdgeLookup,
@@ -26,7 +25,6 @@ import type {
 import { useViewportHelper } from '../composables'
 import {
   applyChanges,
-  clamp,
   createAdditionChange,
   createEdgeRemoveChange,
   createGraphEdges,
@@ -34,17 +32,14 @@ import {
   createNodeRemoveChange,
   createSelectionChange,
   getConnectedEdges as getConnectedEdgesBase,
-  getDimensions,
   getHandleBounds,
   getIncomers as getIncomersBase,
   getOutgoers as getOutgoersBase,
-  getOverlappingArea,
   getSelectionChanges,
   isDef,
   isEdge,
   isGraphNode,
   isNode,
-  isRect,
   nodeToRect,
   updateConnectionLookup,
   updateEdgeAction,
@@ -125,17 +120,11 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
   }
 
   const updateNodeDimensions: Actions['updateNodeDimensions'] = (updates) => {
-    if (!state.vueFlowRef) {
+    if (!state.viewportRef) {
       return
     }
 
-    const viewportNode = state.vueFlowRef.querySelector('.vue-flow__transformationpane') as HTMLElement
-
-    if (!viewportNode) {
-      return
-    }
-
-    const style = window.getComputedStyle(viewportNode)
+    const style = window.getComputedStyle(state.viewportRef)
     const { m22: zoom } = new window.DOMMatrixReadOnly(style.transform)
 
     const changes: NodeDimensionChange[] = []
@@ -292,17 +281,17 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
   }
 
   const setMinZoom: Actions['setMinZoom'] = (minZoom) => {
-    state.d3Zoom?.scaleExtent([minZoom, state.maxZoom])
+    state.panZoom?.setScaleExtent([minZoom, state.maxZoom])
     state.minZoom = minZoom
   }
 
   const setMaxZoom: Actions['setMaxZoom'] = (maxZoom) => {
-    state.d3Zoom?.scaleExtent([state.minZoom, maxZoom])
+    state.panZoom?.setScaleExtent([state.minZoom, maxZoom])
     state.maxZoom = maxZoom
   }
 
   const setTranslateExtent: Actions['setTranslateExtent'] = (translateExtent) => {
-    state.d3Zoom?.translateExtent(translateExtent)
+    state.panZoom?.setTranslateExtent(translateExtent)
     state.translateExtent = translateExtent
   }
 
@@ -312,7 +301,7 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
   }
 
   const setPaneClickDistance: Actions['setPaneClickDistance'] = (clickDistance) => {
-    state.d3Zoom?.clickDistance(clickDistance)
+    state.panZoom?.setClickDistance(clickDistance)
   }
 
   const setInteractive: Actions['setInteractive'] = (isInteractive) => {
@@ -626,7 +615,7 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
   const getNodeRect = (
     nodeOrRect: (Partial<Node> & { id: Node['id'] }) | Rect,
   ): [Rect | null, Node | null | undefined, boolean] => {
-    const isRectObj = isRect(nodeOrRect)
+    const isRectObj = isRectObject(nodeOrRect)
     const node = isRectObj ? null : isGraphNode(nodeOrRect as GraphNode) ? (nodeOrRect as GraphNode) : findNode(nodeOrRect.id)
 
     if (!isRectObj && !node) {
@@ -677,44 +666,16 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
   }
 
   const panBy: Actions['panBy'] = (delta) => {
-    const { viewport, dimensions, d3Zoom, d3Selection, translateExtent } = state
+    const { viewport, dimensions, translateExtent, panZoom } = state
 
-    if (!d3Zoom || !d3Selection || (!delta.x && !delta.y)) {
-      return false
-    }
-
-    const nextTransform = zoomIdentity.translate(viewport.x + delta.x, viewport.y + delta.y).scale(viewport.zoom)
-
-    const extent: CoordinateExtent = [
-      [0, 0],
-      [dimensions.width, dimensions.height],
-    ]
-
-    const constrainedTransform = d3Zoom.constrain()(nextTransform, extent, translateExtent)
-
-    const transformChanged =
-      state.viewport.x !== constrainedTransform.x ||
-      state.viewport.y !== constrainedTransform.y ||
-      state.viewport.zoom !== constrainedTransform.k
-
-    d3Zoom.transform(d3Selection, constrainedTransform)
-
-    return transformChanged
+    return panBySystem({ delta, panZoom, transform: [viewport.x, viewport.y, viewport.zoom], translateExtent, ...dimensions })
   }
 
   const setState: Actions['setState'] = (options) => {
     const opts = options instanceof Function ? options(state) : options
 
     // these options cannot be set after initialization
-    const exclude: (keyof typeof opts)[] = [
-      'd3Zoom',
-      'd3Selection',
-      'd3ZoomHandler',
-      'viewportRef',
-      'vueFlowRef',
-      'dimensions',
-      'hooks',
-    ]
+    const exclude: (keyof typeof opts)[] = ['viewportRef', 'vueFlowRef', 'dimensions', 'hooks']
 
     // we need to set the default opts before setting any elements so the options are applied to the elements on first render
     if (isDef(opts.defaultEdgeOptions)) {
@@ -760,7 +721,7 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
       }
     }
 
-    until(() => state.d3Zoom)
+    until(() => state.panZoom)
       .not.toBeNull()
       .then(setSkippedOptions)
 
@@ -849,21 +810,12 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
     state.edges = []
     state.nodes = []
 
-    // reset the zoom state
-    if (state.d3Zoom && state.d3Selection) {
-      const updatedTransform = zoomIdentity
-        .translate(resetState.defaultViewport.x ?? 0, resetState.defaultViewport.y ?? 0)
-        .scale(clamp(resetState.defaultViewport.zoom ?? 1, resetState.minZoom, resetState.maxZoom))
-
-      const bbox = state.viewportRef!.getBoundingClientRect()
-
-      const extent: CoordinateExtent = [
-        [0, 0],
-        [bbox.width, bbox.height],
-      ]
-
-      const constrainedTransform = state.d3Zoom.constrain()(updatedTransform, extent, resetState.translateExtent)
-      state.d3Zoom.transform(state.d3Selection, constrainedTransform)
+    if (state.panZoom) {
+      state.panZoom.setViewport({
+        x: state.defaultViewport.x ?? 0,
+        y: state.defaultViewport.y ?? 0,
+        zoom: state.defaultViewport.zoom ?? 1,
+      })
     }
 
     setState(resetState)
@@ -915,9 +867,7 @@ export function useActions(state: State, nodeLookup: ComputedRef<NodeLookup>, ed
     zoomOut: (transitionOpts) => viewportHelper.value.zoomOut(transitionOpts),
     zoomTo: (zoomLevel, transitionOpts) => viewportHelper.value.zoomTo(zoomLevel, transitionOpts),
     setViewport: (params, transitionOpts) => viewportHelper.value.setViewport(params, transitionOpts),
-    setTransform: (params, transitionOpts) => viewportHelper.value.setTransform(params, transitionOpts),
     getViewport: () => viewportHelper.value.getViewport(),
-    getTransform: () => viewportHelper.value.getTransform(),
     setCenter: (x, y, opts) => viewportHelper.value.setCenter(x, y, opts),
     fitBounds: (params, opts) => viewportHelper.value.fitBounds(params, opts),
     project: (params) => viewportHelper.value.project(params),

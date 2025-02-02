@@ -1,7 +1,7 @@
+import { isMacOs } from '@xyflow/system'
 import type { FlowOptions, State } from '../types'
 import { ConnectionLineType, ConnectionMode, PanOnScrollMode, SelectionMode } from '../types'
 
-import { isMacOs } from '../utils'
 import { createHooks } from './hooks'
 
 export function useState(): State {
@@ -22,9 +22,7 @@ export function useState(): State {
     },
     viewport: { x: 0, y: 0, zoom: 1 },
 
-    d3Zoom: null,
-    d3Selection: null,
-    d3ZoomHandler: null,
+    panZoom: null,
 
     minZoom: 0.5,
     maxZoom: 2,

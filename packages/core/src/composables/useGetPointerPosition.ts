@@ -1,4 +1,5 @@
-import { getEventPosition, isUseDragEvent, pointToRendererPoint, snapPosition } from '../utils'
+import { getEventPosition, snapPosition } from '@xyflow/system'
+import { isUseDragEvent, pointToRendererPoint } from '../utils'
 import type { MouseTouchEvent } from '../types'
 import { useVueFlow } from './useVueFlow'
 import type { UseDragEvent } from './useDrag'

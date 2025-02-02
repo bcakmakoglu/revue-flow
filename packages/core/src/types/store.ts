@@ -1,5 +1,6 @@
 import type { CSSProperties, ComputedRef, ToRefs } from 'vue'
 import type { KeyFilter } from '@vueuse/core'
+import type { PanZoomInstance, Viewport } from '@xyflow/system'
 import type { ViewportHelper } from '../composables'
 import type {
   Dimensions,
@@ -28,7 +29,7 @@ import type {
 } from './connection'
 import type { DefaultEdgeOptions, Edge, EdgeUpdatable, GraphEdge } from './edge'
 import type { CoordinateExtent, CoordinateExtentRange, GraphNode, Node } from './node'
-import type { D3Selection, D3Zoom, D3ZoomHandler, PanOnScrollMode, ViewportTransform } from './zoom'
+import type { PanOnScrollMode } from './zoom'
 import type { CustomEvent, FlowHooks, FlowHooksEmit, FlowHooksOn } from './hooks'
 import type { EdgeChange, NodeChange, NodeDragItem } from './changes'
 import type { ConnectingHandle, HandleType, ValidConnectionFunc } from './handle'
@@ -59,15 +60,14 @@ export interface State extends Omit<FlowProps, 'id' | 'modelValue'> {
 
   connectionLookup: ConnectionLookup
 
-  readonly d3Zoom: D3Zoom | null
-  readonly d3Selection: D3Selection | null
-  readonly d3ZoomHandler: D3ZoomHandler | null
+  /** The panzoom instance */
+  panZoom: PanZoomInstance | null
 
   /** use setMinZoom action to change minZoom */
   minZoom: number
   /** use setMaxZoom action to change maxZoom */
   maxZoom: number
-  defaultViewport: Partial<ViewportTransform>
+  defaultViewport: Partial<Viewport>
   /** use setTranslateExtent action to change translateExtent */
   translateExtent: CoordinateExtent
   nodeExtent: CoordinateExtent | CoordinateExtentRange
@@ -75,7 +75,7 @@ export interface State extends Omit<FlowProps, 'id' | 'modelValue'> {
   /** viewport dimensions - do not change! */
   readonly dimensions: Dimensions
   /** viewport transform x, y, z - do not change!  */
-  readonly viewport: ViewportTransform
+  readonly viewport: Viewport
   /** if true will skip rendering any elements currently not inside viewport until they become visible */
   onlyRenderVisibleElements: boolean
   nodesSelectionActive: boolean
@@ -281,11 +281,11 @@ export interface Actions extends Omit<ViewportHelper, 'viewportInitialized'> {
   removeSelectedNodes: (nodes: GraphNode[]) => void
   /** unselect selected elements (if none are passed, all elements are unselected) */
   removeSelectedElements: (elements?: Elements) => void
-  /** apply min zoom value to d3 */
+  /** apply min zoom value to panzoom */
   setMinZoom: (zoom: number) => void
-  /** apply max zoom value to d3 */
+  /** apply max zoom value to panzoom */
   setMaxZoom: (zoom: number) => void
-  /** apply translate extent to d3 */
+  /** apply translate extent to panzoom */
   setTranslateExtent: (translateExtent: CoordinateExtent) => void
   /** apply extent to nodes */
   setNodeExtent: (nodeExtent: CoordinateExtent | CoordinateExtentRange) => void
@@ -325,7 +325,7 @@ export interface Actions extends Omit<ViewportHelper, 'viewportInitialized'> {
   /** get all connections of a handle belonging to a node */
   getHandleConnections: ({ id, type, nodeId }: { id?: string | null; type: HandleType; nodeId: string }) => HandleConnection[]
   /** pan the viewport; return indicates if a transform has happened or not */
-  panBy: (delta: XYPosition) => boolean
+  panBy: (delta: XYPosition) => Promise<boolean>
   /** viewport helper instance */
   viewportHelper: ComputedRef<ViewportHelper>
 

@@ -1,7 +1,7 @@
-import { zoomIdentity } from 'd3-zoom'
 import { computed } from 'vue'
-import type { D3Selection, GraphNode, Project, State, ViewportFunctions } from '../types'
-import { clampPosition, getRectOfNodes, getTransformForBounds, pointToRendererPoint, rendererPointToPoint, warn } from '../utils'
+import { rendererPointToPoint } from '@xyflow/system'
+import type { GraphNode, Project, State, ViewportFunctions } from '../types'
+import { getRectOfNodes, getTransformForBounds, pointToRendererPoint, warn } from '../utils'
 
 export interface ViewportHelper extends ViewportFunctions {
   viewportInitialized: boolean
@@ -28,9 +28,7 @@ const initialViewportHelper: ViewportHelper = {
   screenToFlowCoordinate: (position) => position,
   flowToScreenCoordinate: (position) => position,
   setViewport: noop,
-  setTransform: noop,
   getViewport: () => ({ x: 0, y: 0, zoom: 1 }),
-  getTransform: () => ({ x: 0, y: 0, zoom: 1 }),
   viewportInitialized: false,
 }
 
@@ -41,43 +39,9 @@ const initialViewportHelper: ViewportHelper = {
  * @param state
  */
 export function useViewportHelper(state: State) {
-  function zoom(scale: number, duration?: number) {
-    return new Promise<boolean>((resolve) => {
-      if (state.d3Selection && state.d3Zoom) {
-        state.d3Zoom.scaleBy(
-          transition(state.d3Selection, duration, () => {
-            resolve(true)
-          }),
-          scale,
-        )
-      } else {
-        resolve(false)
-      }
-    })
-  }
-
-  function transformViewport(x: number, y: number, zoom: number, duration?: number) {
-    return new Promise<boolean>((resolve) => {
-      // enforce translate extent
-      const { x: clampedX, y: clampedY } = clampPosition({ x: -x, y: -y }, state.translateExtent)
-
-      const nextTransform = zoomIdentity.translate(-clampedX, -clampedY).scale(zoom)
-
-      if (state.d3Selection && state.d3Zoom) {
-        state.d3Zoom.transform(
-          transition(state.d3Selection, duration, () => {
-            resolve(true)
-          }),
-          nextTransform,
-        )
-      } else {
-        resolve(false)
-      }
-    })
-  }
-
   return computed<ViewportHelper>(() => {
-    const isInitialized = state.d3Zoom && state.d3Selection && state.dimensions.width && state.dimensions.height
+    const panZoom = state.panZoom
+    const isInitialized = state.panZoom && state.dimensions.width && state.dimensions.height
 
     if (!isInitialized) {
       return initialViewportHelper
@@ -87,44 +51,36 @@ export function useViewportHelper(state: State) {
       viewportInitialized: true,
       // todo: allow passing scale as option
       zoomIn: (options) => {
-        return zoom(1.2, options?.duration)
+        return panZoom ? panZoom.scaleBy(1.2, options) : Promise.resolve(false)
       },
       zoomOut: (options) => {
-        return zoom(1 / 1.2, options?.duration)
+        return panZoom ? panZoom.scaleBy(1 / 1.2, options) : Promise.resolve(false)
       },
       zoomTo: (zoomLevel, options) => {
-        return new Promise<boolean>((resolve) => {
-          if (state.d3Selection && state.d3Zoom) {
-            state.d3Zoom.scaleTo(
-              transition(state.d3Selection, options?.duration, () => {
-                resolve(true)
-              }),
-              zoomLevel,
-            )
-          } else {
-            resolve(false)
-          }
-        })
+        return panZoom ? panZoom.scaleTo(zoomLevel, options) : Promise.resolve(false)
       },
-      setViewport: (transform, options) => {
-        return transformViewport(transform.x, transform.y, transform.zoom, options?.duration)
-      },
-      setTransform: (transform, options) => {
-        return transformViewport(transform.x, transform.y, transform.zoom, options?.duration)
+      setViewport: async (viewport, options) => {
+        if (!panZoom) {
+          return Promise.resolve(false)
+        }
+
+        await panZoom.setViewport(
+          {
+            x: viewport.x ?? state.viewport.x,
+            y: viewport.y ?? state.viewport.y,
+            zoom: viewport.zoom ?? state.viewport.zoom,
+          },
+          options,
+        )
+
+        return Promise.resolve(true)
       },
       getViewport: () => ({
         x: state.viewport.x,
         y: state.viewport.y,
         zoom: state.viewport.zoom,
       }),
-      getTransform: () => {
-        return {
-          x: state.viewport.x,
-          y: state.viewport.y,
-          zoom: state.viewport.zoom,
-        }
-      },
-      fitView: (
+      fitView: async (
         options = {
           padding: DEFAULT_PADDING,
           includeHiddenNodes: false,
@@ -142,7 +98,7 @@ export function useViewportHelper(state: State) {
           }
         }
 
-        if (!nodesToFit.length) {
+        if (!nodesToFit.length || !panZoom) {
           return Promise.resolve(false)
         }
 
@@ -158,16 +114,28 @@ export function useViewportHelper(state: State) {
           options.offset,
         )
 
-        return transformViewport(x, y, zoom, options?.duration)
+        await panZoom.setViewport({ x, y, zoom }, options)
+
+        return Promise.resolve(true)
       },
-      setCenter: (x, y, options) => {
+      setCenter: async (x, y, options) => {
+        if (!panZoom) {
+          return Promise.resolve(false)
+        }
+
         const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : state.maxZoom
         const centerX = state.dimensions.width / 2 - x * nextZoom
         const centerY = state.dimensions.height / 2 - y * nextZoom
 
-        return transformViewport(centerX, centerY, nextZoom, options?.duration)
+        await panZoom.setViewport({ x: centerX, y: centerY, zoom: nextZoom }, options)
+
+        return Promise.resolve(true)
       },
-      fitBounds: (bounds, options = { padding: DEFAULT_PADDING }) => {
+      fitBounds: async (bounds, options = { padding: DEFAULT_PADDING }) => {
+        if (!panZoom) {
+          return Promise.resolve(false)
+        }
+
         const { x, y, zoom } = getTransformForBounds(
           bounds,
           state.dimensions.width,
@@ -177,7 +145,9 @@ export function useViewportHelper(state: State) {
           options.padding,
         )
 
-        return transformViewport(x, y, zoom, options?.duration)
+        await panZoom.setViewport({ x, y, zoom }, options)
+
+        return Promise.resolve(true)
       },
       project: (position) => pointToRendererPoint(position, state.viewport, state.snapToGrid, state.snapGrid),
       screenToFlowCoordinate: (position) => {
@@ -203,15 +173,11 @@ export function useViewportHelper(state: State) {
             y: position.y + domY,
           }
 
-          return rendererPointToPoint(correctedPosition, state.viewport)
+          return rendererPointToPoint(correctedPosition, [state.viewport.x, state.viewport.y, state.viewport.zoom])
         }
 
         return { x: 0, y: 0 }
       },
     }
   })
-}
-
-function transition(selection: D3Selection, ms = 0, onEnd: () => void) {
-  return (selection as any).transition().duration(ms).on('end', onEnd)
 }

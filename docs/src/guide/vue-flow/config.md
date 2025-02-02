@@ -500,7 +500,7 @@ const edges = ref([
 
 ### default-viewport (optional)
 
-- Type: [`ViewportTransform`](/typedocs/interfaces/ViewportTransform)
+- Type: `Viewport`
 
 - Default: `{ zoom: 1, position: { x: 0, y: 0 } }`
 

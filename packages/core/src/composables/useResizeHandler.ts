@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { onBeforeUnmount, onMounted } from 'vue'
-import { ErrorCode, VueFlowError, getDimensions } from '../utils'
+import { getDimensions } from '@xyflow/system'
+import { ErrorCode, VueFlowError } from '../utils'
 import { useVueFlow } from './useVueFlow'
 
 /**

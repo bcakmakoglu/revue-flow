@@ -25,12 +25,12 @@ function mountVueFlow(props?: FlowProps, attrs?: Record<string, any>, slots?: Re
   })
 }
 
-function useViewPort() {
-  return cy.get('.vue-flow__viewport')
+function useZoomPane() {
+  return cy.get('.vue-flow__zoom-pane')
 }
 
-function useTransformationPane() {
-  return cy.get('.vue-flow__transformationpane')
+function useViewport() {
+  return cy.get('.vue-flow__viewport')
 }
 
 function retry(assertion: Function, { interval = 20, timeout = 1000 } = {}) {
@@ -95,8 +95,8 @@ declare global {
     interface Chainable {
       mount: typeof mount
       vueFlow: typeof mountVueFlow
-      viewPort: typeof useViewPort
-      transformationPane: typeof useTransformationPane
+      viewPort: typeof useZoomPane
+      transformationPane: typeof useViewport
       tryAssertion: typeof retry
       connect: typeof connect
       dragConnection: typeof dragConnection
@@ -108,9 +108,9 @@ Cypress.Commands.add('mount', mount)
 
 Cypress.Commands.add('vueFlow', mountVueFlow)
 
-Cypress.Commands.add('viewPort', useViewPort)
+Cypress.Commands.add('viewPort', useZoomPane)
 
-Cypress.Commands.add('transformationPane', useTransformationPane)
+Cypress.Commands.add('transformationPane', useViewport)
 
 Cypress.Commands.add('tryAssertion', retry)
 

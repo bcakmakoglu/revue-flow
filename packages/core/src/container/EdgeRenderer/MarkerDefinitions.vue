@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { getMarkerId } from '@xyflow/system'
 import type { EdgeMarkerType, MarkerProps, MarkerType } from '../../types'
 import { useVueFlow } from '../../composables'
-import { getMarkerId } from '../../utils'
 import MarkerSymbols from './MarkerSymbols.vue'
 
 const { id: vueFlowId, edges, connectionLineOptions, defaultMarkerColor: defaultColor } = useVueFlow()

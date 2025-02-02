@@ -1,5 +1,4 @@
 export * from './a11y'
-export * from './autopan'
 export * from './changes'
 export * from './createExtendedEventHook'
 export * from './drag'

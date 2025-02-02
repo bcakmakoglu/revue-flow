@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, toRef } from 'vue'
+import { getDimensions, isMouseEvent } from '@xyflow/system'
 import type { HandleProps } from '../../types'
 import { Position } from '../../types'
 import { useHandle, useNode, useVueFlow } from '../../composables'
-import { getDimensions, isDef, isMouseEvent } from '../../utils'
+import { isDef } from '../../utils'
 
 const {
   position = Position.Top,
@@ -23,7 +24,7 @@ const {
   connectionStartHandle,
   connectionClickStartHandle,
   connectionEndHandle,
-  vueFlowRef,
+  viewportRef,
   nodesConnectable,
   noDragClassName,
   noPanClassName,
@@ -106,13 +107,7 @@ onMounted(() => {
 
   const existingBounds = node.handleBounds[type.value]?.find((b) => b.id === handleId)
 
-  if (!vueFlowRef.value || existingBounds) {
-    return
-  }
-
-  const viewportNode = vueFlowRef.value.querySelector('.vue-flow__transformationpane')
-
-  if (!nodeEl.value || !handle.value || !viewportNode || !handleId) {
+  if (!nodeEl.value || !handle.value || !viewportRef.value || !handleId || existingBounds) {
     return
   }
 
@@ -120,7 +115,7 @@ onMounted(() => {
 
   const handleBounds = handle.value.getBoundingClientRect()
 
-  const style = window.getComputedStyle(viewportNode)
+  const style = window.getComputedStyle(viewportRef.value)
   const { m22: zoom } = new window.DOMMatrixReadOnly(style.transform)
 
   const nextBounds = {

@@ -1,7 +1,7 @@
 import { defineComponent, h } from 'vue'
+import { getStraightPath } from '@xyflow/system'
 import type { StraightEdgeProps } from '../../types'
 import BaseEdge from './BaseEdge.vue'
-import { getStraightPath } from './utils'
 
 const StraightEdge = defineComponent<StraightEdgeProps>({
   name: 'StraightEdge',

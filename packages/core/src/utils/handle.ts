@@ -1,3 +1,4 @@
+import { getEventPosition, getOverlappingArea } from '@xyflow/system'
 import { ConnectionMode, Position } from '../types'
 import type {
   Actions,
@@ -14,7 +15,7 @@ import type {
   Result,
   XYPosition,
 } from '../types'
-import { getEventPosition, getHandlePosition, getOverlappingArea, nodeToRect } from '.'
+import { getHandlePosition, nodeToRect } from '.'
 
 const alwaysValid = () => true
 

@@ -1,17 +1,10 @@
 import { computed, defineComponent, getCurrentInstance, h, inject, provide, ref, resolveComponent, toRef } from 'vue'
+import { getMarkerId } from '@xyflow/system'
 import type { Connection, EdgeComponent, HandleType, MouseTouchEvent } from '../../types'
 import { ConnectionMode, Position } from '../../types'
 import { useEdgeHooks, useHandle, useVueFlow } from '../../composables'
 import { EdgeId, EdgeRef, Slots } from '../../context'
-import {
-  ARIA_EDGE_DESC_KEY,
-  ErrorCode,
-  VueFlowError,
-  elementSelectionKeys,
-  getEdgeHandle,
-  getHandlePosition,
-  getMarkerId,
-} from '../../utils'
+import { ARIA_EDGE_DESC_KEY, ErrorCode, VueFlowError, elementSelectionKeys, getEdgeHandle, getHandlePosition } from '../../utils'
 import EdgeAnchor from './EdgeAnchor'
 
 interface Props {

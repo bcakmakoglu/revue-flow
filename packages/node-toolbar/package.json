@@ -48,6 +48,7 @@
     "@tooling/tsconfig": "workspace:*",
     "@tooling/vite-config": "workspace:*",
     "@vue-flow/core": "workspace:*",
+    "@xyflow/system": "^0.0.39",
     "vue-tsc": "^1.8.16"
   },
   "publishConfig": {

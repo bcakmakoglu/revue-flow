@@ -1,21 +1,17 @@
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue } from 'vue'
+import { calcAutoPan, getEventPosition, getHostForElement, isMouseEvent, rendererPointToPoint } from '@xyflow/system'
 import type { Connection, ConnectionInProgress, HandleElement, HandleType, MouseTouchEvent, ValidConnectionFunc } from '../types'
 import {
-  calcAutoPan,
   getClosestHandle,
   getConnectionStatus,
-  getEventPosition,
   getHandle,
   getHandlePosition,
   getHandleType,
-  getHostForElement,
   isConnectionValid,
-  isMouseEvent,
   isValidHandle,
   oppositePosition,
   pointToRendererPoint,
-  rendererPointToPoint,
   resetRecentHandle,
 } from '../utils'
 import { Position } from '../types'
@@ -174,7 +170,8 @@ export function useHandle({
 
       let previousConnection: ConnectionInProgress = newConnection
 
-      function onPointerMove(event: MouseTouchEvent) {
+      function onPointerMove(_event: Event) {
+        const event = _event as MouseTouchEvent
         connectionPosition = getEventPosition(event, containerBounds)
 
         closestHandle = getClosestHandle(
@@ -218,7 +215,11 @@ export function useHandle({
           isValid,
           to:
             closestHandle && isValid
-              ? rendererPointToPoint({ x: closestHandle.x, y: closestHandle.y }, viewport.value)
+              ? rendererPointToPoint({ x: closestHandle.x, y: closestHandle.y }, [
+                  viewport.value.x,
+                  viewport.value.y,
+                  viewport.value.zoom,
+                ])
               : connectionPosition,
           toHandle: result.toHandle,
           toPosition: isValid && result.toHandle ? result.toHandle.position : oppositePosition[fromHandle.position],
@@ -248,7 +249,7 @@ export function useHandle({
                   x: closestHandle.x,
                   y: closestHandle.y,
                 },
-                viewport.value,
+                [viewport.value.x, viewport.value.y, viewport.value.zoom],
               )
             : connectionPosition,
           result.toHandle,
@@ -274,7 +275,8 @@ export function useHandle({
         }
       }
 
-      function onPointerUp(event: MouseTouchEvent) {
+      function onPointerUp(_event: Event) {
+        const event = _event as MouseTouchEvent
         if ((closestHandle || handleDomNode) && connection && isValid) {
           if (!onEdgeUpdate) {
             emits.connect(connection)

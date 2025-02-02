@@ -31,13 +31,13 @@
   }
 }
 
-.vue-flow__transformationpane {
+.vue-flow__viewport {
   transform-origin: 0 0;
   z-index: 2;
   pointer-events: none;
 }
 
-.vue-flow__viewport {
+.vue-flow__zoom-pane {
   z-index: 4;
   overflow: clip;
 }

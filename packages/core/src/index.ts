@@ -18,14 +18,12 @@ export { default as BaseEdge } from './components/Edges/BaseEdge.vue'
 export { default as EdgeText } from './components/Edges/EdgeText.vue'
 export { default as EdgeLabelRenderer } from './components/Edges/EdgeLabelRenderer.vue'
 
-export {
-  getBezierPath,
-  getSimpleBezierPath,
-  getSmoothStepPath,
-  getStraightPath,
-  getSimpleEdgeCenter,
-  getBezierEdgeCenter,
-} from './components/Edges/utils'
+// re-export these utils from system
+export { getBezierPath, getSmoothStepPath, getStraightPath, getBezierEdgeCenter } from '@xyflow/system'
+export { getSimpleBezierPath } from './components/Edges/SimpleBezierEdge'
+
+// re-export graph utils
+export { clamp, getBoundsOfRects, getBoundsOfBoxes, rendererPointToPoint, getMarkerId } from '@xyflow/system'
 
 export {
   isNode,
@@ -38,12 +36,8 @@ export {
   getTransformForBounds,
   getRectOfNodes,
   pointToRendererPoint,
-  rendererPointToPoint,
   getNodesInside,
-  getMarkerId,
-  getBoundsofRects,
   connectionExists,
-  clamp,
 } from './utils/graph'
 
 /**
@@ -74,3 +68,6 @@ export { useKeyPress } from './composables/useKeyPress'
 export { VueFlowError, ErrorCode, isErrorOfType } from './utils/errors'
 
 export * from './types'
+
+// todo: add more re-exports
+export { type Viewport } from '@xyflow/system'

@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { nextTick } from 'vue'
+import { getDimensions } from '@xyflow/system'
 import type { Actions, GraphNode, HandleElement, HandleType, Position } from '../types'
-import { getDimensions } from '.'
 
 export function getHandleBounds(
   type: HandleType,
