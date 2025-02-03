@@ -15,52 +15,12 @@ import type {
 } from './connection'
 import type { PanOnScrollMode } from './zoom'
 import type { EdgeTypesObject, NodeTypesObject } from './components'
-import type { CustomEvent, EdgeMouseEvent, EdgeUpdateEvent, MouseTouchEvent, NodeDragEvent, NodeMouseEvent } from './hooks'
+import type { EdgeMouseEvent, EdgeUpdateEvent, MouseTouchEvent, NodeDragEvent, NodeMouseEvent } from './hooks'
 import type { ValidConnectionFunc } from './handle'
 import type { EdgeChange, NodeChange } from './changes'
 import type { VueFlowStore } from './store'
 
-// todo: should be object type
-export type ElementData = any
-
-/**
- * @deprecated - will be removed in the next major version
- * A flow element (after parsing into state)
- */
-export type FlowElement<
-  NodeData = ElementData,
-  EdgeData = ElementData,
-  NodeEvents extends Record<string, CustomEvent> = any,
-  EdgeEvents extends Record<string, CustomEvent> = any,
-> = GraphNode<NodeData, NodeEvents> | GraphEdge<EdgeData, EdgeEvents>
-
-/**
- * @deprecated - will be removed in the next major version
- * An array of flow elements (after parsing into state)
- */
-export type FlowElements<
-  NodeData = ElementData,
-  EdgeData = ElementData,
-  NodeEvents extends Record<string, CustomEvent> = any,
-  EdgeEvents extends Record<string, CustomEvent> = any,
-> = FlowElement<NodeData, EdgeData, NodeEvents, EdgeEvents>[]
-
-/** Initial elements (before parsing into state) */
-export type Element<
-  NodeData = ElementData,
-  EdgeData = ElementData,
-  NodeEvents extends Record<string, CustomEvent> = any,
-  EdgeEvents extends Record<string, CustomEvent> = any,
-> = Node<NodeData, NodeEvents> | Edge<EdgeData, EdgeEvents>
-
-export type Elements<
-  NodeData = ElementData,
-  EdgeData = ElementData,
-  NodeEvents extends Record<string, CustomEvent> = any,
-  EdgeEvents extends Record<string, CustomEvent> = any,
-> = Element<NodeData, EdgeData, NodeEvents, EdgeEvents>[]
-
-export type MaybeElement = Node | Edge | Connection | FlowElement | Element
+export type MaybeElement = Node | Edge | Connection | Element
 
 export interface CustomThemeVars {
   [key: string]: string | number | undefined
@@ -75,12 +35,8 @@ export type CSSVars =
   | '--vf-handle'
 
 export type ThemeVars = { [key in CSSVars]?: CSSProperties['color'] }
-export type Styles = CSSProperties & ThemeVars & CustomThemeVars
-/** @deprecated will be removed in the next major version */
-export type ClassFunc<ElementType extends FlowElement = FlowElement> = (element: ElementType) => string | void
 
-/** @deprecated will be removed in the next major version */
-export type StyleFunc<ElementType extends FlowElement = FlowElement> = (element: ElementType) => Styles | void
+export type Styles = CSSProperties & ThemeVars & CustomThemeVars
 
 /** Handle Positions */
 export enum Position {
@@ -142,11 +98,6 @@ export interface FlowExportObject {
 
 export interface FlowProps {
   id?: string
-  /**
-   * all elements (nodes + edges)
-   * @deprecated use {@link FlowProps.nodes} & {@link FlowProps.nodes} instead
-   */
-  modelValue?: Elements
   nodes?: Node[]
   edges?: Edge[]
   /** either use the edgeTypes prop to define your edge-types or use slots (<template #edge-mySpecialType="props">) */
@@ -316,7 +267,6 @@ export interface FlowEmits {
   ): void
 
   /** v-model event definitions */
-  (event: 'update:modelValue', value: FlowElements): void
   (event: 'update:nodes', value: GraphNode[]): void
   (event: 'update:edges', value: GraphEdge[]): void
 }
