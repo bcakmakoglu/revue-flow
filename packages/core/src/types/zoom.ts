@@ -1,12 +1,6 @@
 import type { Viewport } from '@xyflow/system'
 import type { Rect, XYPosition } from './flow'
 
-export enum PanOnScrollMode {
-  Free = 'free',
-  Vertical = 'vertical',
-  Horizontal = 'horizontal',
-}
-
 export interface TransitionOptions {
   duration?: number
 }

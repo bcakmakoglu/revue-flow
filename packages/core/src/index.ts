@@ -70,4 +70,4 @@ export { VueFlowError, ErrorCode, isErrorOfType } from './utils/errors'
 export * from './types'
 
 // todo: add more re-exports
-export { type Viewport } from '@xyflow/system'
+export { type Viewport, PanOnScrollMode } from '@xyflow/system'

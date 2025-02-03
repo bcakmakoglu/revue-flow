@@ -1,6 +1,6 @@
 import type { CSSProperties, ComputedRef, ToRefs } from 'vue'
 import type { KeyFilter } from '@vueuse/core'
-import type { PanZoomInstance, Viewport } from '@xyflow/system'
+import type { PanOnScrollMode, PanZoomInstance, Viewport } from '@xyflow/system'
 import type { ViewportHelper } from '../composables'
 import type {
   Dimensions,
@@ -29,7 +29,6 @@ import type {
 } from './connection'
 import type { DefaultEdgeOptions, Edge, EdgeUpdatable, GraphEdge } from './edge'
 import type { CoordinateExtent, CoordinateExtentRange, GraphNode, Node } from './node'
-import type { PanOnScrollMode } from './zoom'
 import type { CustomEvent, FlowHooks, FlowHooksEmit, FlowHooksOn } from './hooks'
 import type { EdgeChange, NodeChange, NodeDragItem } from './changes'
 import type { ConnectingHandle, HandleType, ValidConnectionFunc } from './handle'

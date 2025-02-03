@@ -1,6 +1,6 @@
-import { isMacOs } from '@xyflow/system'
+import { PanOnScrollMode, isMacOs } from '@xyflow/system'
 import type { FlowOptions, State } from '../types'
-import { ConnectionLineType, ConnectionMode, PanOnScrollMode, SelectionMode } from '../types'
+import { ConnectionLineType, ConnectionMode, SelectionMode } from '../types'
 
 import { createHooks } from './hooks'
 
